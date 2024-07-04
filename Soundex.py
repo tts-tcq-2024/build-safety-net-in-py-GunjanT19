@@ -10,6 +10,8 @@ def get_soundex_code(c):
     }
     return mapping.get(c, '0')  # Default to '0' for non-mapped characters
 
+
+
 def remove_consecutive_duplicates(s):
     result = [s[0]]
     for char in s[1:]:

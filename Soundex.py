@@ -1,5 +1,5 @@
-def get_soundex_code(c):
-    c = c.upper()
+def get_soundex_code(input):
+    input = input.upper()
     mapping = {
         'B': '1', 'F': '1', 'P': '1', 'V': '1',
         'C': '2', 'G': '2', 'J': '2', 'K': '2', 'Q': '2', 'S': '2', 'X': '2', 'Z': '2',
@@ -8,36 +8,28 @@ def get_soundex_code(c):
         'M': '5', 'N': '5',
         'R': '6'
     }
-    return mapping.get(c, '0')  # Default to '0' for non-mapped characters
-
-def remove_consecutive_duplicates(s):
-    result = [s[0]]
-    for char in s[1:]:
-        if char != result[-1]:
-            result.append(char)
-    return ''.join(result)
-
-def encode_characters(name):
-    encoded = [get_soundex_code(name[0])]
-    for char in name[1:]:
-        code = get_soundex_code(char)
-        if code != '0':
-            encoded.append(code)
-    return ''.join(encoded)
-
+    return mapping.get(input, '0')  # Default to '0' for non-mapped characters
+ 
+def initialize_soundex(name):
+    # Initialize the soundex code with the first letter
+    first_letter = name[0].upper()
+    return first_letter, get_soundex_code(first_letter)
+ 
+def should_add_code(char, code, prev_code):
+    return code != '0' and code != prev_code
+ 
+def process_characters(name, soundex, prev_code):
+    codes = [get_soundex_code(char) for char in name[1:] if should_add_code(char, get_soundex_code(char), prev_code)]
+    return (soundex + ''.join(codes)[:3]).ljust(4, '0')
+ 
+def pad_soundex(soundex):
+    # Pad with zeros if necessary to ensure length is 4
+    return soundex.ljust(4, '0')
+ 
 def generate_soundex(name):
     if not name:
         return ""
-    
-    # Retain the first letter and encode the rest
-    first_letter = name[0].upper()
-    encoded = encode_characters(name)
-
-    # Remove consecutive duplicates
-    encoded = remove_consecutive_duplicates(encoded)
-    
-    # Combine the first letter with the encoded characters and pad with zeros
-    soundex = first_letter + encoded[1:]
-    soundex = soundex[:4].ljust(4, '0')
-
-    return soundex
+ 
+    soundex, prev_code = initialize_soundex(name)
+    soundex = process_characters(name, soundex, prev_code)
+    return pad_soundex(soundex)
